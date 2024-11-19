@@ -1,0 +1,61 @@
+    /**
+     * Buscar dados do CNPJ via API CNPJA
+     */
+    public function fetch_cnpj_data()
+    {
+        if (!has_permission('customers', '', 'view')) {
+            ajax_access_denied();
+        }
+
+        $cnpj = $this->input->post('cnpj');
+        $cnpj = preg_replace('/[^0-9]/', '', $cnpj);
+        
+        if (empty($cnpj)) {
+            echo json_encode(['success' => false, 'message' => 'CNPJ não informado']);
+            return;
+        }
+
+        $api_key = get_option('cnpja_api_key');
+        if (empty($api_key)) {
+            echo json_encode(['success' => false, 'message' => 'Chave da API CNPJA não configurada']);
+            return;
+        }
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => "https://api.cnpja.com/office/" . $cnpj,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: ' . $api_key
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($http_code === 200) {
+            $data = json_decode($response, true);
+            
+            $company_data = [
+                'success' => true,
+                'data' => [
+                    'company' => $data['company']['name'],
+                    'vat' => $cnpj,
+                    'phonenumber' => isset($data['phones'][0]) ? $data['phones'][0] : '',
+                    'address' => $data['address']['street'] . ', ' . $data['address']['number'],
+                    'city' => $data['address']['city'],
+                    'state' => $data['address']['state'],
+                    'zip' => $data['address']['zip']
+                ]
+            ];
+            
+            echo json_encode($company_data);
+        } else {
+            $error_data = json_decode($response, true);
+            echo json_encode([
+                'success' => false,
+                'message' => isset($error_data['message']) ? $error_data['message'] : 'Erro ao consultar CNPJ'
+            ]);
+        }
+    }

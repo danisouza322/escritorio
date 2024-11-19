@@ -1,0 +1,49 @@
+# Arquivos de configuração
+application/config/config.php
+application/config/database.php
+application/config/*.php
+
+# Arquivos de upload
+uploads/*
+!uploads/index.html
+!uploads/.htaccess
+
+# Arquivos temporários
+temp/*
+!temp/index.html
+
+# Arquivos de cache
+application/cache/*
+!application/cache/index.html
+!application/cache/.htaccess
+
+# Logs
+application/logs/*
+!application/logs/index.html
+!application/logs/.htaccess
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Dependências
+node_modules/
+vendor/
+
+# Arquivos de ambiente
+.env
+.env.*
+!.env.example
+
+# Arquivos de IDE/Editor
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Arquivos de backup
+*.bak
+*.backup
+*~
